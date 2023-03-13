@@ -1,9 +1,10 @@
-from flask import Flask, abort
+from flask import Flask, abort, jsonify
 from flask_wtf import FlaskForm
 from wtforms import EmailField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired
 
 from data import db_session
+from data.news_api import blueprint
 from data.users import User
 import datetime
 from flask import request
@@ -21,6 +22,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+
 
 class LoginForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
@@ -172,8 +175,24 @@ def reqister():
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
+@blueprint.route('/api/news')
+def get_news():
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).all()
+    return jsonify(
+        {
+            'news':
+                [item.to_dict(only=('title', 'content', 'user.name'))
+                 for item in news]
+        }
+    )
+
+from data import db_session, news_api
+
+
 def main():
     db_session.global_init("db/blogs.db")
+    app.register_blueprint(news_api.blueprint)
     app.run()
 
 

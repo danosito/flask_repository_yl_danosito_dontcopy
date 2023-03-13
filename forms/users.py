@@ -1,9 +1,11 @@
+from flask_login import UserMixin
 from flask_wtf import FlaskForm
+from sqlalchemy_serializer import SerializerMixin
 from wtforms import PasswordField, StringField, TextAreaField, SubmitField, EmailField
 from wtforms.validators import DataRequired
 
 
-class RegisterForm(FlaskForm):
+class RegisterForm(FlaskForm, UserMixin, SerializerMixin):
     email = EmailField('Почта', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
